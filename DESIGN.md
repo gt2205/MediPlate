@@ -1,108 +1,109 @@
 # MediPlate Design Document
 
-> This document describes the internal architecture and engineering decisions behind MediPlate. For an overview of the project, motivation, features, and setup instructions, refer to **README.md**.
+> This document describes the proposed system architecture and research-oriented design decisions behind MediPlate. Nothing described here has been implemented yet. The purpose of this document is to define a framework that can later be implemented and experimentally evaluated. See [README.md](README.md) for the project overview, motivation, and current status.
 
 ---
 
 # Design Principles
 
-The architecture of MediPlate is guided by the following principles:
+The proposed architecture of MediPlate is guided by the following principles:
 
-- **Doctor-first:** The platform integrates into existing clinical workflows rather than replacing them.
-- **Structured over free-form:** Patient information and disease data remain structured throughout the system.
-- **Grounded AI:** Every recommendation is generated using curated disease mappings instead of relying solely on an LLM's pretrained knowledge.
-- **Modular AI:** The meal generation component is isolated so it can later be replaced by a deterministic recommendation engine.
-- **Simple patient experience:** Patients should require no installation or account creation.
+* **Doctor-first:** The platform is designed to integrate into existing clinical workflows rather than replacing them.
+* **Structured over free-form:** Patient information and disease data are intended to remain structured throughout the system.
+* **Grounded AI:** Every recommendation would be generated using curated disease mappings instead of relying solely on an LLM's pretrained knowledge.
+* **Modular AI:** The meal generation component is designed to be isolated so it can later be replaced by a deterministic recommendation engine.
+* **Simple patient experience:** Patients should require no installation or account creation.
+* **Evaluation before deployment:** No component that touches real patient dietary guidance should ship without the evaluation methodology in README.md having been run and reviewed first.
 
 ---
 
-# Overall Architecture
+# Proposed Architecture
 
 ```text
                     +----------------------+
                     |    Doctor Portal     |
-                    | (React Frontend)     |
+                    |    (React Frontend)  |
                     +----------+-----------+
                                |
                                | HTTPS
                                |
                     +----------v-----------+
-                    |     FastAPI API      |
+                    |      FastAPI API     |
                     | Authentication       |
                     | Patient Management   |
                     | Diet Generation      |
                     +-----+----------+-----+
                           |          |
               +-----------+          +----------------+
-              |                                   |
-    +---------v---------+             +-----------v-----------+
-    | Firebase Database |             | Disease Knowledge Base|
-    | Patients          |             | JSON Mappings         |
-    | Doctors           |             | Clinical Guidelines   |
-    +---------+---------+             +-----------+-----------+
-              |                                   |
-              +-------------------+---------------+
+              |                                       |
+    +---------v---------+               +-------------v-------------+
+    | Firebase Database  |               | Disease Knowledge Base    |
+    | Patients           |               | JSON Mappings             |
+    | Doctors            |               | Clinical Guidelines       |
+    +---------+----------+               +-------------+-------------+
+              |                                       |
+              +-------------------+-------------------+
                                   |
-                       +----------v-----------+
-                       | Diet Generation      |
-                       | Service (LLM)        |
-                       +----------+-----------+
+                        +---------v----------+
+                        | Diet Generation    |
+                        | Service (LLM)      |
+                        +---------+----------+
                                   |
-                 +----------------+----------------+
-                 |                                 |
-      +----------v----------+          +-----------v-----------+
-      | PDF Generation      |          | Patient Assistant API |
-      | QR Code             |          | Chat & Vision         |
-      +---------------------+          +-----------------------+
+                  +---------------+----------------+
+                  |                                |
+       +----------v----------+          +----------v-----------+
+       | PDF Generation      |          | Patient Assistant API |
+       | QR Code             |          | Chat & Vision         |
+       +---------------------+          +-----------------------+
 ```
 
-The FastAPI backend serves as the orchestration layer, coordinating requests between the frontend, database, disease knowledge base, AI service, and PDF generator.
+The FastAPI backend is proposed as the orchestration layer, coordinating requests between the frontend, database, disease knowledge base, AI service, and PDF generator. None of these components currently exist as code.
 
 ---
 
-# Component Design
+# Component Design (proposed)
 
 ## Doctor Portal
 
-The Doctor Portal is the primary interface used during patient consultation.
+Intended to be the primary interface used during patient consultation.
 
-Responsibilities:
+Proposed responsibilities:
 
-- Doctor authentication
-- Patient registration
-- Disease selection
-- Disease duration management
-- Dietary preference collection
-- Meal plan generation
-- PDF download
+* Doctor authentication
+* Patient registration
+* Disease selection
+* Disease duration management
+* Dietary preference collection
+* Meal plan generation
+* PDF download
 
-The frontend contains minimal business logic, with all validation and processing handled by the backend.
+The frontend is intended to contain minimal business logic, with all validation and processing handled by the backend.
 
 ---
 
 ## Backend API
 
-The backend coordinates the complete workflow.
+Intended to coordinate the complete workflow.
 
-Primary responsibilities include:
+Proposed responsibilities include:
 
-- Authentication
-- Patient CRUD operations
-- Active disease calculation
-- Disease mapping retrieval
-- Prompt construction
-- LLM invocation
-- PDF generation
-- QR generation
-- Patient data retrieval
+* Authentication
+* Patient CRUD operations
+* Active disease calculation
+* Disease mapping retrieval
+* Prompt construction
+* LLM invocation
+* PDF generation
+* QR generation
+* Patient data retrieval
 
-Business logic is intentionally centralized to keep the frontend lightweight.
+Business logic is intended to be centralized to keep the frontend lightweight.
 
 ---
 
 ## Database
 
-Firebase stores persistent application data.
+Firebase is proposed to store persistent application data.
 
 ### Doctor
 
@@ -134,7 +135,7 @@ diseases[]
 createdAt
 ```
 
-Each disease stores:
+Each disease would store:
 
 ```text
 Disease
@@ -145,15 +146,15 @@ startDate
 endDate
 ```
 
-This allows temporary illnesses to expire automatically.
+This is intended to allow temporary illnesses to expire automatically.
 
 ---
 
-# Disease Knowledge Base
+# Disease Knowledge Base (proposed)
 
-Rather than embedding medical knowledge directly into prompts, MediPlate stores dietary guidance in structured JSON mappings.
+Rather than embedding medical knowledge directly into prompts, MediPlate proposes storing dietary guidance in structured JSON mappings.
 
-Example:
+Example (illustrative, not yet built or clinically reviewed):
 
 ```json
 {
@@ -173,67 +174,69 @@ Example:
 }
 ```
 
-Benefits:
+Intended benefits:
 
-- Easier maintenance
-- Version control
-- Transparent recommendations
-- Reusable across different AI providers
+* Easier maintenance
+* Version control
+* Transparent recommendations
+* Reusable across different AI providers
+
+The open question is who authors and clinically validates these mappings, and what review process they go through before they are trusted as ground truth for evaluation. This is currently unresolved and matters more than most of the engineering decisions below.
 
 ---
 
-# Diet Generation Pipeline
-
-The meal generation service follows the pipeline below.
+# Diet Generation Pipeline (proposed)
 
 ```text
 Patient Profile
-        │
-        ▼
+      │
+      ▼
 Retrieve Active Diseases
-        │
-        ▼
+      │
+      ▼
 Load Disease Mappings
-        │
-        ▼
+      │
+      ▼
 Construct System Prompt
-        │
-        ▼
+      │
+      ▼
 Large Language Model
-        │
-        ▼
+      │
+      ▼
 Generate Meal Plan
-        │
-        ▼
+      │
+      ▼
 PDF / Patient Assistant Response
 ```
 
-The prompt includes:
+The prompt would include:
 
-- Patient demographics
-- Dietary preferences
-- Active conditions
-- Disease mappings
-- Clinical instructions
+* Patient demographics
+* Dietary preferences
+* Active conditions
+* Disease mappings
+* Clinical instructions
 
-The model is instructed to:
+The model would be instructed to:
 
-- Use only provided disease mappings.
-- Resolve conflicting recommendations conservatively.
-- Generate practical Indian meals.
-- Explain important recommendations.
-- Avoid unsupported medical advice.
+* Use only provided disease mappings
+* Resolve conflicting recommendations conservatively
+* Generate practical Indian meals
+* Explain important recommendations
+* Avoid unsupported medical advice
+
+“Resolve conflicting recommendations conservatively” is the design-level statement of the research question in README.md. At present it is only a prompt instruction, with no defined mechanism or evaluation for whether the model actually does this reliably. Making that mechanism explicit and testable is the main open design problem in this document.
 
 ---
 
-# Time-Aware Disease Resolution
+# Time-Aware Disease Resolution (proposed)
 
-Each disease is stored with either:
+Each disease would be stored with either:
 
-- Permanent status
-- Temporary duration
+* Permanent status
+* Temporary duration
 
-Whenever patient information is requested, the backend evaluates active conditions.
+Whenever patient information is requested, the backend would evaluate active conditions.
 
 Example:
 
@@ -261,138 +264,190 @@ Diabetes
 Hypertension
 ```
 
-This ensures recommendations automatically evolve as temporary illnesses resolve.
+This is intended to ensure recommendations automatically evolve as temporary illnesses resolve.
 
 ---
 
-# Patient Assistant
+# Patient Assistant (proposed)
 
-The patient assistant is intentionally stateless.
+The patient assistant is proposed to be stateless.
 
 Workflow:
 
 ```text
 Patient
-      │
-      ▼
+   │
+   ▼
 Patient ID
-      │
-      ▼
+   │
+   ▼
 Backend API
-      │
-      ▼
+   │
+   ▼
 Retrieve Active Conditions
-      │
-      ▼
+   │
+   ▼
 Construct Prompt
-      │
-      ▼
+   │
+   ▼
 LLM
-      │
-      ▼
+   │
+   ▼
 Response
 ```
 
-Supported interactions:
+Proposed interactions:
 
-- Diet generation
-- Dietary Q&A
-- Meal image evaluation
+* Diet generation
+* Dietary Q&A
+* Meal image evaluation
 
-Patient-specific information is always retrieved from the backend instead of being stored in the conversation.
-
----
-
-# PDF Generation
-
-Every generated report contains:
-
-- Doctor branding
-- Patient information
-- AI-generated meal plan
-- Patient ID
-- QR Code
-- Medical disclaimer
-
-The PDF acts as the bridge between the physical consultation and the digital assistant.
+Patient-specific information would always be retrieved from the backend instead of being stored in the conversation.
 
 ---
 
-# Security Considerations
+# PDF Generation (proposed)
 
-Current security measures include:
+Every generated report would contain:
 
-- Authenticated doctor accounts
-- Backend-only database access
-- Unique patient identifiers
-- HTTPS communication
-- Encrypted data storage
-- Audit logging
+* Doctor branding
+* Patient information
+* AI-generated meal plan
+* Patient ID
+* QR Code
+* Medical disclaimer
 
-Patient information is never directly exposed to the AI service without backend validation.
+The PDF is intended to act as the bridge between the physical consultation and the digital assistant.
+
+---
+
+# Security Considerations (proposed)
+
+Proposed security measures include:
+
+* Authenticated doctor accounts
+* Backend-only database access
+* Unique patient identifiers
+* HTTPS communication
+* Encrypted data storage
+* Audit logging
+
+Patient information should never be directly exposed to the AI service without backend validation. None of these measures have been implemented or reviewed yet; they are design intentions.
 
 ---
 
 # Design Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| React + FastAPI | Simple, modern full-stack architecture |
-| Firebase | Managed backend with rapid development |
-| JSON disease mappings | Maintainable and reusable medical knowledge |
-| LLM-generated meal plans | Faster MVP with flexible meal generation |
-| QR-based onboarding | Eliminates app installation for patients |
-| Stateless patient assistant | Ensures recommendations always use the latest patient data |
+| Decision                    | Rationale                                                         |
+| --------------------------- | ----------------------------------------------------------------- |
+| React + FastAPI             | Simple, modern full-stack architecture                            |
+| Firebase                    | Managed backend with rapid development                            |
+| JSON disease mappings       | Maintainable and reusable medical knowledge                       |
+| LLM-generated meal plans    | Faster path to a testable prototype with flexible meal generation |
+| QR-based onboarding         | Eliminates app installation for patients                          |
+| Stateless patient assistant | Ensures recommendations always use the latest patient data        |
 
 ---
 
-## Deployment Considerations
+# Deployment Considerations
 
 The proposed architecture is independent of the conversational interface used to interact with patients. One possible deployment strategy is to provide patients with a QR code following the clinical consultation that opens a dedicated conversational AI interface.
 
-During the initial interaction, the patient authenticates using a unique identifier generated during the consultation. The conversational interface retrieves the physician-created dietary profile and clinical constraints through secure backend APIs before initiating the interaction.
+During the initial interaction, the patient would authenticate using a unique identifier generated during the consultation. The conversational interface would retrieve the physician-created dietary profile and clinical constraints through secure backend APIs before initiating the interaction.
 
-This deployment model enables patients to continue receiving grounded dietary guidance without requiring a dedicated application while keeping physicians responsible only for the initial clinical onboarding. Since ongoing AI interactions are patient-initiated, the framework has the potential to reduce deployment barriers for healthcare providers. The exact conversational platform remains an implementation choice and is intentionally decoupled from the overall system architecture.
+This deployment model, if built, could allow patients to continue receiving grounded dietary guidance without requiring a dedicated application while keeping physicians responsible only for the initial clinical onboarding. Since ongoing AI interactions would be patient-initiated, the framework has the potential to reduce deployment barriers for healthcare providers. The exact conversational platform remains an implementation choice, intentionally decoupled from the overall system architecture.
 
 ---
 
 # Future Architecture
 
-The current MVP allows the LLM to generate complete meal plans.
+The current proposal has the LLM generate complete meal plans directly.
 
-The surrounding architecture has been designed so that only the diet generation service needs to change in future versions.
+The surrounding architecture is designed so that, if warranted by the evaluation results, only the diet generation service would need to change in later versions:
 
 ```text
-Current MVP
+Current Proposal (v1)
 
 Patient Profile
-        │
-        ▼
+      │
+      ▼
 Disease Mappings
-        │
-        ▼
+      │
+      ▼
 Large Language Model
-        │
-        ▼
+      │
+      ▼
 Meal Plan
 
 
-Future Architecture
+Possible Future Architecture
 
 Patient Profile
-        │
-        ▼
+      │
+      ▼
 Rule Engine
-        │
-        ▼
+      │
+      ▼
 Meal Database
-        │
-        ▼
+      │
+      ▼
 Meal Optimizer
-        │
-        ▼
+      │
+      ▼
 Large Language Model
 (Natural Language Generation Only)
 ```
 
-This separation allows MediPlate to evolve toward a more deterministic and clinically robust recommendation system while preserving the existing APIs, frontend, and patient experience.
+This separation is intended to let MediPlate evolve toward a more deterministic and clinically robust recommendation system, if the evaluation work shows that's necessary, while preserving the same APIs, frontend, and patient experience.
+
+---
+
+# Research Questions
+
+The proposed architecture is intended to investigate the following research questions rather than demonstrate a finished software system.
+
+## RQ1 — Grounded Dietary Guidance
+
+Can an AI system grounded in physician-created clinical profiles and structured disease knowledge provide safe, personalized dietary recommendations for patients with multiple co-existing medical conditions?
+
+## RQ2 — Cross-Condition Conflict Resolution
+
+Can grounded AI consistently identify and resolve conflicting dietary recommendations arising from multiple simultaneous medical conditions while remaining clinically conservative?
+
+## RQ3 — Clinical Workflow Integration
+
+Can a physician-initiated, AI-assisted framework extend post-consultation dietary care without increasing physician workload or disrupting existing clinical workflows?
+
+## RQ4 — Modular Clinical AI
+
+Does separating structured clinical knowledge, recommendation logic, and natural language generation improve transparency, maintainability, and future clinical validation compared with relying solely on end-to-end LLM prompting?
+
+---
+
+# Open Design Questions
+
+Several important engineering and research questions remain open prior to implementation.
+
+### Knowledge Base
+
+* Who should author and clinically validate the disease knowledge base?
+* What review and versioning process should govern updates to medical knowledge?
+
+### Recommendation Logic
+
+* What mechanism should resolve conflicting dietary recommendations between multiple simultaneous conditions?
+* Should conflict resolution rely on explicit rules, evidence-weighted prioritization, or another approach?
+
+### Evaluation
+
+* How should recommendation quality be evaluated against physician- or dietitian-created dietary plans?
+* Which metrics best measure recommendation safety, consistency, personalization, and clinical usefulness?
+
+### Safety and Deployment
+
+* How should uncertainty and recommendation confidence be communicated to patients?
+* What ethical approvals and governance processes would be required before evaluation involving clinicians or patient data?
+
+### Future Architecture
+
+* As the number of co-existing medical conditions increases, does an LLM-based generator remain sufficiently reliable, or does a deterministic recommendation engine become necessary?

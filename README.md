@@ -1,22 +1,26 @@
 # MediPlate
 
-> AI-assisted post-diagnostic nutrition platform for Indian clinical workflows.
+> A research proposal for a physician-initiated, AI-assisted framework for post-diagnostic dietary guidance in a clinical settings.
 
-![Status](https://img.shields.io/badge/status-MVP-blue)
-![Frontend](https://img.shields.io/badge/Frontend-React-61DAFB)
-![Backend](https://img.shields.io/badge/Backend-FastAPI-009688)
-![Database](https://img.shields.io/badge/Database-Firebase-FFCA28)
+---
+
+![Status](https://img.shields.io/badge/status-research%20proposal-lightgrey)
+![Frontend](https://img.shields.io/badge/Frontend-React%20(planned)-61DAFB)
+![Backend](https://img.shields.io/badge/Backend-FastAPI%20(planned)-009688)
+![Database](https://img.shields.io/badge/Database-Firebase%20(planned)-FFCA28)
 ![AI](https://img.shields.io/badge/AI-LLM-orange)
 
 ---
 
 # Overview
 
-MediPlate is a doctor-first, AI-assisted nutrition platform designed to simplify post-diagnostic dietary care for Indian patients managing one or more chronic or temporary medical conditions.
+MediPlate is a research proposal for a doctor-first, AI-assisted nutrition framework aimed at simplifying post-diagnostic dietary care for Indian patients managing one or more chronic or temporary medical conditions.
 
-Instead of relying on patients to search through conflicting dietary advice online, MediPlate enables physicians to generate personalized Indian meal plans during consultation. Patients receive a branded PDF containing a unique Patient ID and QR code that allows them to continue receiving dietary guidance through an AI assistant after leaving the clinic.
+Instead of relying on patients to search through conflicting dietary advice online, MediPlate proposes that physicians generate personalized Indian meal plans during consultation. Patients would receive a physician-generated PDF containing a unique Patient ID and QR code, allowing them to continue receiving dietary guidance through an AI assistant after leaving the clinic.
 
-The platform is designed to **augment clinical workflows rather than replace them**. Doctors remain responsible for diagnosis and treatment, while MediPlate provides personalized dietary guidance based on the patient's diagnosed conditions.
+The platform is designed to **augment clinical workflows rather than replace them**. Doctors remain responsible for diagnosis and treatment; MediPlate's role is limited to dietary guidance grounded in the conditions a physician has already diagnosed.
+
+**This repository currently contains the problem statement and system design. There is no implementation yet, and no results have been produced or evaluated.**
 
 ---
 
@@ -33,9 +37,7 @@ Patients frequently leave with multiple medical conditions such as:
 - Fatty Liver
 - Temporary illnesses like fever or post-surgery recovery
 
-Many of these conditions have conflicting dietary recommendations.
-
-For example:
+Many of these conditions have conflicting dietary recommendations. For example:
 
 | Condition | Recommendation |
 |-----------|----------------|
@@ -46,25 +48,23 @@ Due to limited consultation time, detailed nutritional counselling is often skip
 
 ---
 
-## Research Motivation
+# Research Motivation
 
 MediPlate is not intended to replace physicians or automate clinical decision-making. Instead, it explores how grounded AI systems can extend physician-directed dietary care beyond the consultation while preserving clinical oversight.
 
-The project investigates whether a physician-initiated, AI-assisted framework can provide safe, personalized, and longitudinal dietary guidance for patients with multiple co-existing medical conditions. It also explores how such systems can reduce barriers to adoption by separating clinical onboarding from continuous patient interactions.
-
-The current repository focuses on documenting the problem, system design, and research direction. The implementation and experimental evaluation remain future work.
+The project investigates whether a physician-initiated, AI-assisted framework can provide safe, personalized, and longitudinal dietary guidance for patients with multiple co-existing medical conditions, and — more specifically — whether such a system can be shown to resolve cross-condition dietary conflicts safely and consistently. It also explores how such systems can reduce barriers to adoption by separating clinical onboarding from continuous patient interactions.
 
 ---
 
-# Solution
+# Proposed Solution
 
-MediPlate extends the doctor's consultation by combining structured clinical knowledge with AI-assisted dietary guidance.
+MediPlate proposes extending the doctor's consultation by combining structured clinical knowledge with AI-assisted dietary guidance.
 
-The doctor performs a one-time patient onboarding during consultation. Afterward, patients can independently access personalized meal plans and dietary guidance by scanning a QR code printed on their report.
+The doctor would perform a one-time patient onboarding during consultation. Afterward, patients could independently access personalized meal plans and dietary guidance by scanning a QR code printed on their report.
 
 ---
 
-# High-Level Workflow
+# Proposed Workflow
 
 ```text
 Doctor
@@ -82,7 +82,7 @@ Prints PDF + QR Code
                ▼
 Patient Scans QR
                │
-Patient Assistant Retrieves Profile
+AI Assistant Retrieves Physician-Verified Profile
                │
 AI Provides Personalized Dietary Guidance
 ```
@@ -91,11 +91,11 @@ For implementation details and system architecture, see **[DESIGN.md](DESIGN.md)
 
 ---
 
-# Features
+# Proposed Features
 
 ## Doctor Portal
 
-- Secure doctor authentication
+- Doctor authentication
 - Patient registration
 - Multiple disease selection
 - Permanent & temporary disease tracking
@@ -104,8 +104,6 @@ For implementation details and system architecture, see **[DESIGN.md](DESIGN.md)
 - Doctor-branded PDF generation
 - QR code generation
 - Unique Patient IDs
-
----
 
 ## Patient Assistant
 
@@ -117,7 +115,7 @@ For implementation details and system architecture, see **[DESIGN.md](DESIGN.md)
 
 ---
 
-# Technology Stack
+# Proposed Technology Stack
 
 | Layer | Technology |
 |--------|------------|
@@ -127,58 +125,33 @@ For implementation details and system architecture, see **[DESIGN.md](DESIGN.md)
 | AI | OpenAI / Claude Compatible APIs |
 | PDF Generation | ReportLab / HTML Templates |
 | QR Code | Python QRCode |
-| Deployment | Vercel + Render (Planned) |
+| Deployment | Vercel + Render (planned) |
+
+None of this has been implemented yet — this is the intended stack for a future implementation phase, not a description of what currently exists.
 
 ---
 
-# Project Structure
+# Planned Repository Structure
 
 ```text
 MediPlate/
 
-├── frontend/              # React application
-├── backend/               # FastAPI backend
-├── disease_mappings/      # Structured disease knowledge
-├── prompts/               # LLM prompts
-├── pdf_generator/         # PDF generation service
+├── frontend/              # React application (not yet implemented)
+├── backend/               # FastAPI backend (not yet implemented)
+├── disease_mappings/      # Structured disease knowledge (not yet implemented)
+├── prompts/               # LLM prompts (not yet implemented)
+├── pdf_generator/         # PDF generation service (not yet implemented)
 ├── DESIGN.md
 └── README.md
 ```
 
 ---
 
-# Current Workflow
+# Proposed AI Approach
 
-### Doctor
+The proposed approach uses a Large Language Model (LLM) to generate complete meal plans, grounded in structured disease mappings rather than the model's internal knowledge alone.
 
-1. Login
-2. Register a new patient
-3. Select diagnosed conditions
-4. Configure temporary disease durations
-5. Choose dietary preferences
-6. Generate personalized meal plan
-7. Print branded PDF
-
----
-
-### Patient
-
-1. Scan QR code
-2. Enter Patient ID
-3. AI retrieves active conditions
-4. Request diet plans
-5. Ask dietary questions
-6. Upload meal photos for dietary analysis
-
----
-
-# AI Approach
-
-The current MVP uses a Large Language Model (LLM) to generate complete meal plans.
-
-Rather than relying entirely on the model's internal knowledge, MediPlate grounds responses using structured disease mappings.
-
-The LLM receives:
+The LLM would receive:
 
 - Patient demographics
 - Dietary preferences
@@ -186,7 +159,7 @@ The LLM receives:
 - Disease-specific dietary mappings
 - Clinical instructions
 
-The system prompt instructs the model to:
+The system prompt would instruct the model to:
 
 - Use only the supplied disease mappings
 - Resolve conflicting recommendations conservatively
@@ -195,43 +168,11 @@ The system prompt instructs the model to:
 - Avoid unsupported medical advice
 - Recommend physician consultation whenever appropriate
 
-The architecture is intentionally modular so the diet generation service can later be replaced with a deterministic recommendation engine without changing the rest of the platform.
+The architecture is intended to be modular, so the diet generation service could later be replaced with a deterministic recommendation engine without changing the rest of the platform. See [DESIGN.md](DESIGN.md#future-architecture) for details.
 
 ---
 
-# Roadmap
-
-## Phase 1 (Current MVP)
-
-- Doctor Portal
-- Patient Registration
-- Disease Knowledge Base
-- AI Meal Plan Generation
-- PDF Generation
-- QR Code Integration
-- Patient API
-
----
-
-## Phase 2
-
-- AI Patient Assistant
-- Hindi Support
-- Meal Image Analysis
-- Regional Cuisine Preferences
-
----
-
-## Phase 3
-
-- Doctor Branding
-- Clinical Validation
-- Analytics Dashboard
-- Production Deployment
-
----
-
-# Future Improvements
+# Future Work
 
 - Rule-based recommendation engine
 - Structured Indian meal database
@@ -241,14 +182,15 @@ The architecture is intentionally modular so the diet generation service can lat
 - Nutritional analytics
 - Hospital EMR integration
 - Evidence-backed recommendations
+- Clinical validation with physicians and nutrition experts
 
 ---
 
 # Medical Disclaimer
 
-MediPlate is an AI-assisted dietary guidance platform intended to support physicians and patients after diagnosis.
+MediPlate, as proposed, is intended to support physicians and patients after diagnosis.
 
-It **does not** provide medical diagnosis, prescribe treatment, or replace professional medical advice. Patients should always consult their treating physician before making significant dietary or medical changes.
+It **does not** provide medical diagnosis, prescribe treatment, or replace professional medical advice. Patients should always consult their treating physician before making significant dietary or medical changes. No part of this proposal has been clinically validated.
 
 ---
 
