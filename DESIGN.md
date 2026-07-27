@@ -346,6 +346,16 @@ Patient information is never directly exposed to the AI service without backend 
 
 ---
 
+## Deployment Considerations
+
+The proposed architecture is independent of the conversational interface used to interact with patients. One possible deployment strategy is to provide patients with a QR code following the clinical consultation that opens a dedicated conversational AI interface.
+
+During the initial interaction, the patient authenticates using a unique identifier generated during the consultation. The conversational interface retrieves the physician-created dietary profile and clinical constraints through secure backend APIs before initiating the interaction.
+
+This deployment model enables patients to continue receiving grounded dietary guidance without requiring a dedicated application while keeping physicians responsible only for the initial clinical onboarding. Since ongoing AI interactions are patient-initiated, the framework has the potential to reduce deployment barriers for healthcare providers. The exact conversational platform remains an implementation choice and is intentionally decoupled from the overall system architecture.
+
+---
+
 # Future Architecture
 
 The current MVP allows the LLM to generate complete meal plans.

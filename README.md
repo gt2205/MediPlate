@@ -46,6 +46,16 @@ Due to limited consultation time, detailed nutritional counselling is often skip
 
 ---
 
+## Research Motivation
+
+MediPlate is not intended to replace physicians or automate clinical decision-making. Instead, it explores how grounded AI systems can extend physician-directed dietary care beyond the consultation while preserving clinical oversight.
+
+The project investigates whether a physician-initiated, AI-assisted framework can provide safe, personalized, and longitudinal dietary guidance for patients with multiple co-existing medical conditions. It also explores how such systems can reduce barriers to adoption by separating clinical onboarding from continuous patient interactions.
+
+The current repository focuses on documenting the problem, system design, and research direction. The implementation and experimental evaluation remain future work.
+
+---
+
 # Solution
 
 MediPlate extends the doctor's consultation by combining structured clinical knowledge with AI-assisted dietary guidance.
